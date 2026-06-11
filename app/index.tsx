@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { router } from 'expo-router';
 import { supabase } from '../lib/supabase';
 
 const BRANSLAR = [
@@ -153,8 +154,7 @@ export default function GirisEkrani() {
 
     await supabase.from('davet_kodlari').update({ kullanildi: true, kullanan_ogretmen_id: ogretmen.id }).eq('kod', davetKodu.trim());
     setYukleniyor(false);
-    // TODO: portal ekranına yönlendir
-    alert('Kayıt başarılı! 🎉');
+    router.replace({ pathname: '/portal', params: { rol: 'ogretmen', ogretmenId: String(ogretmen.id), adSoyad: ogretmen.ad_soyad, kademe: ogretmen.kademe, branslar: JSON.stringify(ogretmen.branslar ?? []), okulId: String(ogretmen.okul_id), sinifId: String(ogretmen.sinif_id) } });
   };
 
   const handleOgretmenGiris = async () => {
@@ -165,8 +165,7 @@ export default function GirisEkrani() {
       .select('*').eq('okul_id', Number(secilenOkulId)).eq('ad_soyad', adSoyad.trim()).eq('sifre', sifre).single();
     setYukleniyor(false);
     if (error || !data) { setHata('❌ Bilgiler hatalı veya kayıt bulunamadı.'); return; }
-    // TODO: portal ekranına yönlendir
-    alert(`Hoş geldiniz, ${data.ad_soyad}! 👩‍🏫`);
+    router.replace({ pathname: '/portal', params: { rol: 'ogretmen', ogretmenId: String(data.id), adSoyad: data.ad_soyad, kademe: data.kademe, branslar: JSON.stringify(data.branslar ?? []), okulId: String(data.okul_id), sinifId: String(data.sinif_id) } });
   };
 
   const handleVeliGiris = async () => {
@@ -181,8 +180,7 @@ export default function GirisEkrani() {
       .single();
     setYukleniyor(false);
     if (error || !data) { setHata('❌ Bilgiler hatalı, öğrenci bulunamadı.'); return; }
-    // TODO: portal ekranına yönlendir
-    alert(`Hoş geldiniz! 👨‍👩‍👦`);
+    router.replace({ pathname: '/portal', params: { rol: 'veli', ogrenciId: String(data.id), ogrenciIsim: data.isim, sinifId: String(data.sinif_id) } });
   };
 
   const geri = (hedef: string, sifirla?: () => void) => {
@@ -231,7 +229,7 @@ export default function GirisEkrani() {
   return (
     <View className="flex-1 bg-indigo-600">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-        <ScrollView contentContainerClassName="flex-grow justify-center p-4" keyboardShouldPersistTaps="handled">
+        <ScrollView className="flex-1" contentContainerClassName="flex-grow justify-center p-4" keyboardShouldPersistTaps="handled">
           <View className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full self-center gap-5">
 
             <View className="items-center gap-1">
